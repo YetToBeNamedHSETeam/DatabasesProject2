@@ -1,3 +1,4 @@
+-- CALL CreateTables();
 CREATE OR REPLACE PROCEDURE CreateTables()
 LANGUAGE plpgsql
 AS $$
@@ -51,7 +52,8 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE PROCEDURE filltable(IN table_n name)
+-- filling the table by name --
+CREATE OR REPLACE PROCEDURE FillTable(IN table_n name)
 LANGUAGE plpgsql
 AS $$
 	DECLARE table1 VARCHAR     := 'Doctor';
@@ -98,16 +100,16 @@ BEGIN
     END IF;
 
     IF table_n = table4 THEN
-        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('1/12/2020', 1, 7, 6);
-        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('2/12/2020', 1, 6, 3);
-        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('2/12/2020', 2, 2, 1);
-        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('3/12/2020', 3, 8, 7);
-        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('5/12/2020', 3, 4, 2);
-        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('5/12/2020', 4, 3, 4);
-        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('6/12/2020', 5, 5, 5);
-        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('6/12/2020', 5, 5, 5);
-		INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('15/12/2020', 6, 1, 8);
-		INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('16/12/2020', 6, 4, 1);
+        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('12/1/2020', 1, 7, 6);
+        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('12/2/2020', 1, 6, 3);
+        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('12/2/2020', 2, 2, 1);
+        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('12/3/2020', 3, 8, 7);
+        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('12/5/2020', 3, 4, 2);
+        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('12/5/2020', 4, 3, 4);
+        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('12/6/2020', 5, 5, 5);
+        INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('12/10/2020', 5, 5, 5);
+		INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('12/14/2020', 6, 1, 8);
+		INSERT INTO Logbook (Date, Patient, Service, Doctor) VALUES ('12/16/2020', 6, 4, 1);
 
 
         RAISE NOTICE 'Table (%) filled', table4;
@@ -115,15 +117,32 @@ BEGIN
 END;
 $$;
 
-
-CREATE OR REPLACE PROCEDURE fillalltables()
+-- CALL FillAllTables();
+CREATE OR REPLACE PROCEDURE FillAllTables()
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    CALL filltable('Doctor');
-    CALL fillTable('Service');
-    CALL fillTable('Patient');
-    CALL fillTable('Logbook');
+    CALL FillTable('Doctor');
+    CALL FillTable('Service');
+    CALL FillTable('Patient');
+    CALL FillTable('Logbook');
 
 END;
 $$;
+
+-- full and partial table cleanup --
+-- select ClearTables('{Doctor}');
+CREATE OR REPLACE FUNCTION ClearTables(tbnames text[]) RETURNS int AS
+$func$
+DECLARE
+    tbname text;
+BEGIN
+    FOREACH tbname IN ARRAY tbnames LOOP
+        EXECUTE FORMAT('DELETE FROM %s', tbname);
+        EXECUTE FORMAT('ALTER SEQUENCE %s_doctorid_seq restart with 1', tbname);
+    END LOOP;
+    RETURN 1;
+END
+$func$ LANGUAGE plpgsql;
+
+
