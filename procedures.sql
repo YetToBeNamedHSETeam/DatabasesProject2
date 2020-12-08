@@ -28,19 +28,20 @@ AS $$
     DECLARE table3 VARCHAR     := 'Patient';
     DECLARE table4 VARCHAR     := 'Logbook';
 
-    DECLARE DoctorID VARCHAR       := 'DoctorID';
-    DECLARE DoctorName VARCHAR     := 'DoctorName';
-    DECLARE ServiceID VARCHAR      := 'ServiceID';
-    DECLARE Title VARCHAR          := 'Title';
-    DECLARE Cost VARCHAR       	   := 'Cost';
-    DECLARE PatientID VARCHAR      := 'PatientID';
-    DECLARE PatientName VARCHAR    := 'PatientName';
-    DECLARE Phone VARCHAR          := 'Phone';
-    DECLARE Number VARCHAR    	   := 'Number';
-    DECLARE Date   VARCHAR         := 'Date';
-    DECLARE Patient   VARCHAR      := 'Patient';
-    DECLARE Service   VARCHAR      := 'Service';
-	DECLARE Doctor   VARCHAR       := 'Doctor';
+    DECLARE DoctorID VARCHAR       	:= 'DoctorID';
+    DECLARE DoctorName VARCHAR     	:= 'DoctorName';
+    DECLARE ServiceID VARCHAR      	:= 'ServiceID';
+    DECLARE Title VARCHAR          	:= 'Title';
+    DECLARE Cost VARCHAR       	   	:= 'Cost';
+    DECLARE PatientID VARCHAR       := 'PatientID';
+    DECLARE PatientName VARCHAR    	:= 'PatientName';
+    DECLARE Phone VARCHAR          	:= 'Phone';
+	DECLARE DateOfInsert VARCHAR 	:= 'DateOfInsert';
+    DECLARE Number VARCHAR    	   	:= 'Number';
+    DECLARE Date   VARCHAR         	:= 'Date';
+    DECLARE Patient   VARCHAR      	:= 'Patient';
+    DECLARE Service   VARCHAR      	:= 'Service';
+	DECLARE Doctor   VARCHAR       	:= 'Doctor';
 
 BEGIN
 	EXECUTE format('CREATE TABLE IF NOT EXISTS '|| table1 ||' 
@@ -53,7 +54,8 @@ BEGIN
     EXECUTE format('CREATE TABLE IF NOT EXISTS '|| table3 ||'
 				  ('|| PatientID ||' SERIAL PRIMARY KEY, 
 				   '|| PatientName ||' varchar(40), 
-				   '|| Phone ||' varchar(12));');
+				   '|| Phone ||' varchar(12),
+				   '|| DateOfInsert||' timestamp with time zone);');
     EXECUTE format('CREATE TABLE IF NOT EXISTS '|| table4 ||'
 				  ('|| Number ||' SERIAL PRIMARY KEY, 
 				   '|| Date ||' date, 
@@ -152,7 +154,7 @@ BEGIN
 
 END;
 $$;
-
+SELECT * FROM Patient;
 
 -- creating an index on the phone number field --
 -- CALL CreateIndex();
@@ -163,6 +165,63 @@ BEGIN
 	CREATE INDEX phone_index  ON Patient (Phone);  
 END;
 $$;
+
+--Trigger  - надо определять после создания таблиц
+CREATE OR REPLACE FUNCTION change_date() 
+RETURNS TRIGGER AS $change_date$
+BEGIN
+	UPDATE Patient SET DateOfInsert = NOW() WHERE PatientID = NEW.PatientID;
+	RETURN NULL;
+END;
+$change_date$ LANGUAGE plpgsql;
+
+CREATE TRIGGER check_update
+AFTER INSERT ON Patient
+FOR EACH ROW
+EXECUTE PROCEDURE change_date();
+
+
+-- table data output procedures --
+-- SELECT * FROM PrintDoctors ();
+CREATE OR REPLACE FUNCTION PrintDoctors () 
+RETURNS TABLE (Doc_ID integer, Doc_Name varchar(40)) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+	RETURN QUERY 
+		SELECT DoctorId, DoctorName FROM Doctor;
+END;
+$$
+-- SELECT * FROM PrintServices();
+CREATE OR REPLACE FUNCTION PrintServices () 
+RETURNS TABLE (Serv_ID integer, Serv_Title varchar(40), Serv_Cost int) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+	RETURN QUERY 
+		SELECT ServiceId, Title, Cost FROM Service;
+END;
+$$
+-- SELECT * FROM PrintPatients();
+CREATE OR REPLACE FUNCTION PrintPatients () 
+RETURNS TABLE (Pat_ID integer, Pat_Name varchar(40), Pat_Phone varchar(12)) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+	RETURN QUERY 
+		SELECT PatientId, PatientName, Phone FROM Patient;
+END;
+$$
+-- SELECT * FROM PrintLogbook();
+CREATE OR REPLACE FUNCTION PrintLogbook () 
+RETURNS TABLE (Num integer, Date date, Patient_id integer, Service_id integer, Doctor_id integer) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+	RETURN QUERY 
+		SELECT Number, Date, Patient, Service, Doctor FROM Logbook;
+END;
+$$
 
 
 -- full and partial table cleanup --
