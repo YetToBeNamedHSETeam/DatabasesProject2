@@ -1,6 +1,6 @@
 CREATE EXTENSION dblink;
 -- Creating a database by name --
---- SELECT CreateDB('app'); --
+--- SELECT CreateDB('app');
 CREATE OR REPLACE FUNCTION CreateDB(dbname text)
 RETURNS integer AS
 $func$
@@ -10,7 +10,8 @@ IF EXISTS (SELECT 1 FROM pg_database WHERE datname = dbname) THEN
 	RAISE NOTICE 'Database already exists';
 	RETURN 1;
 ELSE
-	PERFORM dblink_exec('dbname=' || current_database() || ' user=postgres password=mypass' , 'CREATE DATABASE ' || quote_ident(dbname));
+	PERFORM dblink_exec('dbname=' || current_database() || ' user=postgres password=mypass' 
+, 'CREATE DATABASE ' || quote_ident(dbname));
 	RETURN 1;
 END IF;
 
@@ -71,6 +72,7 @@ BEGIN
     RAISE NOTICE '(%, %, %, %) created', table1, table2, table3, table4;
 END;
 $$;
+
 
 -- filling the table by name --
 CREATE OR REPLACE PROCEDURE FillTable(IN table_n name)
@@ -137,6 +139,7 @@ BEGIN
 END;
 $$;
 
+
 -- CALL FillAllTables();
 CREATE OR REPLACE PROCEDURE FillAllTables()
 LANGUAGE plpgsql
@@ -149,6 +152,18 @@ BEGIN
 
 END;
 $$;
+
+
+-- creating an index on the phone number field --
+-- CALL CreateIndex();
+CREATE OR REPLACE PROCEDURE CreateIndex()
+LANGUAGE plpgsql
+AS $$
+BEGIN
+	CREATE INDEX phone_index  ON Patient (Phone);  
+END;
+$$;
+
 
 -- full and partial table cleanup --
 -- select ClearTables('{Doctor}');
@@ -165,4 +180,29 @@ BEGIN
 END
 $func$ LANGUAGE plpgsql;
 
+
+-- dropping one or more tables -- 
+-- SELECT DropTables('{Doctor, Service}');
+CREATE OR REPLACE FUNCTION DropTables(tbnames text[]) RETURNS int AS
+$func$
+DECLARE
+    tbname text;
+BEGIN
+    FOREACH tbname IN ARRAY tbnames LOOP
+        EXECUTE FORMAT('DROP TABLE %s', tbname);
+    END LOOP;
+    RETURN 1;
+END
+$func$ LANGUAGE plpgsql;
+
+
+-- deleting all tables --
+-- CALL DropAllTables();
+CREATE OR REPLACE PROCEDURE DropAllTables()
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    PERFORM DropTables('{Doctor, Sercvice, Patient, Logbook}');
+END;
+$$;
 
