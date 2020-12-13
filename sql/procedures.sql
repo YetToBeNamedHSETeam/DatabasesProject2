@@ -161,6 +161,7 @@ BEGIN
 END;
 $$;
 
+
 -- creating an index on the phone number field --
 -- CALL CreateIndex();
 CREATE OR REPLACE PROCEDURE CreateIndex()
@@ -171,7 +172,33 @@ BEGIN
 END;
 $$;
 
---Trigger  procedure --
+
+-- searching by phone field --
+-- SELECT * FROM SearchPatientByPhone('5678321');
+CREATE OR REPLACE FUNCTION SearchPatientByPhone(phone_num text)
+RETURNS TABLE (Pat_ID integer, Pat_Name varchar(40), Pat_Phone varchar(12), 
+			   Ins_date timestamp with time zone) 
+LANGUAGE plpgsql
+AS $$
+BEGIN
+	RETURN QUERY 
+		SELECT * FROM Patient WHERE Phone = phone_num;
+END;
+$$;
+
+
+-- deletion by phone field --
+-- CALL DeletePatientByPhone('5678321');
+CREATE OR REPLACE PROCEDURE DeletePatientByPhone(phone_num text)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+	DELETE FROM Patient WHERE Phone = phone_num;
+END;
+$$;
+
+
+-- Trigger  procedure --
 CREATE OR REPLACE FUNCTION change_date() 
 RETURNS TRIGGER AS $change_date$
 BEGIN
@@ -224,15 +251,31 @@ END;
 $$
 
 
+-- full and partial table cleanup --
+-- SELECT ClearTables('{Doctor, Service, Logbook, Patient}');
+-- SELECT ClearTables('{Patient}');
+CREATE OR REPLACE FUNCTION ClearTables(tbnames text[]) RETURNS int AS
+$func$
+DECLARE
+    tbname text;
+BEGIN
+    FOREACH tbname IN ARRAY tbnames LOOP
+        EXECUTE FORMAT('DELETE FROM %s', tbname);
+    END LOOP;
+    RETURN 1;
+END
+$func$ LANGUAGE plpgsql;
+
+
 -- dropping one or more tables -- 
--- SELECT DropTables('{Doctor, Service}');
+-- SELECT DropTables('{Service, Doctor}');
 CREATE OR REPLACE FUNCTION DropTables(tbnames text[]) RETURNS int AS
 $func$
 DECLARE
     tbname text;
 BEGIN
     FOREACH tbname IN ARRAY tbnames LOOP
-        EXECUTE FORMAT('DROP TABLE %s', tbname);
+        EXECUTE FORMAT('DROP TABLE IF EXISTS %s CASCADE', tbname);
     END LOOP;
     RETURN 1;
 END
@@ -245,7 +288,7 @@ CREATE OR REPLACE PROCEDURE DropAllTables()
 LANGUAGE plpgsql
 AS $$
 BEGIN
-    PERFORM DropTables('{Doctor, Sercvice, Patient, Logbook}');
+    PERFORM DropTables('{Logbook, Service, Patient, Doctor}');
 END;
 $$;
 
