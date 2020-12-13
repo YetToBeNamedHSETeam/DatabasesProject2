@@ -199,7 +199,8 @@ BEGIN
 	RETURN QUERY 
 		SELECT DoctorId, DoctorName FROM Doctor;
 END;
-$$
+$$;
+
 -- SELECT * FROM PrintServices();
 CREATE OR REPLACE FUNCTION PrintServices () 
 RETURNS TABLE (Serv_ID integer, Serv_Title varchar(40), Serv_Cost int) 
@@ -209,7 +210,8 @@ BEGIN
 	RETURN QUERY 
 		SELECT ServiceId, Title, Cost FROM Service;
 END;
-$$
+$$;
+
 -- SELECT * FROM PrintPatients();
 CREATE OR REPLACE FUNCTION PrintPatients () 
 RETURNS TABLE (Pat_ID integer, Pat_Name varchar(40), Pat_Phone varchar(12), Ins_date timestamp with time zone) 
@@ -219,7 +221,8 @@ BEGIN
 	RETURN QUERY 
 		SELECT PatientId, PatientName, Phone, DateOfInsert FROM Patient;
 END;
-$$
+$$;
+
 -- SELECT * FROM PrintLogbook();
 CREATE OR REPLACE FUNCTION PrintLogbook () 
 RETURNS TABLE (Num integer, Date_ date, Patient_id integer, Service_id integer, Doctor_id integer) 
@@ -229,7 +232,7 @@ BEGIN
 	RETURN QUERY 
 		SELECT Number, Date, Patient, Service, Doctor FROM Logbook;
 END;
-$$
+$$;
 
 
 -- full and partial table cleanup --
