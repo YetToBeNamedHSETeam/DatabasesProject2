@@ -147,6 +147,12 @@ CREATE OR REPLACE PROCEDURE FillAllTables()
 LANGUAGE plpgsql
 AS $$
 BEGIN
+	-- Create Trigger --
+	CREATE TRIGGER check_update
+	AFTER INSERT ON Patient
+	FOR EACH ROW
+	EXECUTE PROCEDURE change_date();
+	-- Filling tables --
     CALL FillTable('Doctor');
     CALL FillTable('Service');
     CALL FillTable('Patient');
@@ -154,7 +160,6 @@ BEGIN
 
 END;
 $$;
-SELECT * FROM Patient;
 
 -- creating an index on the phone number field --
 -- CALL CreateIndex();
@@ -166,7 +171,7 @@ BEGIN
 END;
 $$;
 
---Trigger  - надо определять после создания таблиц
+--Trigger  procedure --
 CREATE OR REPLACE FUNCTION change_date() 
 RETURNS TRIGGER AS $change_date$
 BEGIN
@@ -174,11 +179,6 @@ BEGIN
 	RETURN NULL;
 END;
 $change_date$ LANGUAGE plpgsql;
-
-CREATE TRIGGER check_update
-AFTER INSERT ON Patient
-FOR EACH ROW
-EXECUTE PROCEDURE change_date();
 
 
 -- table data output procedures --
@@ -204,17 +204,17 @@ END;
 $$
 -- SELECT * FROM PrintPatients();
 CREATE OR REPLACE FUNCTION PrintPatients () 
-RETURNS TABLE (Pat_ID integer, Pat_Name varchar(40), Pat_Phone varchar(12)) 
+RETURNS TABLE (Pat_ID integer, Pat_Name varchar(40), Pat_Phone varchar(12), Ins_date timestamp with time zone) 
 LANGUAGE plpgsql
 AS $$
 BEGIN
 	RETURN QUERY 
-		SELECT PatientId, PatientName, Phone FROM Patient;
+		SELECT PatientId, PatientName, Phone, DateOfInsert FROM Patient;
 END;
 $$
 -- SELECT * FROM PrintLogbook();
 CREATE OR REPLACE FUNCTION PrintLogbook () 
-RETURNS TABLE (Num integer, Date date, Patient_id integer, Service_id integer, Doctor_id integer) 
+RETURNS TABLE (Num integer, Date_ date, Patient_id integer, Service_id integer, Doctor_id integer) 
 LANGUAGE plpgsql
 AS $$
 BEGIN
@@ -222,22 +222,6 @@ BEGIN
 		SELECT Number, Date, Patient, Service, Doctor FROM Logbook;
 END;
 $$
-
-
--- full and partial table cleanup --
--- select ClearTables('{Doctor}');
-CREATE OR REPLACE FUNCTION ClearTables(tbnames text[]) RETURNS int AS
-$func$
-DECLARE
-    tbname text;
-BEGIN
-    FOREACH tbname IN ARRAY tbnames LOOP
-        EXECUTE FORMAT('DELETE FROM %s', tbname);
-        EXECUTE FORMAT('ALTER SEQUENCE %s_doctorid_seq restart with 1', tbname);
-    END LOOP;
-    RETURN 1;
-END
-$func$ LANGUAGE plpgsql;
 
 
 -- dropping one or more tables -- 
