@@ -11,8 +11,7 @@ class ProjectApp(QtWidgets.QMainWindow, MainWindow.Ui_MainWindow):
         self.pushButton.clicked.connect(self.on_connect_pressed)
 
         self.database_handler = DBHandler()
-        self.database_handler.make_connection(DBHandler.default_db_name, "127.18.0.3", "postgres", "changeme")
-        self.database_handler.load_procedures()
+        self.database_handler.make_connection("postgres", "127.18.0.3", "postgres", "changeme")
         self.database_handler.create_database("test")
 
         self.show()
