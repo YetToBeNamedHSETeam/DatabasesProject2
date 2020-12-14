@@ -276,3 +276,69 @@ BEGIN
 END;
 $$;
 
+-- func for insertClients()--				      
+CREATE OR REPLACE FUNCTION IdByName_doc(name_ text)
+  returns integer
+  AS
+$func$
+DECLARE
+  doc_id integer;
+BEGIN
+    SELECT DoctorID INTO doc_id FROM Doctor WHERE DoctorName = name_;
+    return doc_id; 
+END
+$func$ LANGUAGE plpgsql;
+				      
+-- func for insertClients()--	
+CREATE OR REPLACE FUNCTION IdByName_serv(title_ text)
+  returns integer
+  AS
+$func$
+DECLARE
+  serv_id integer;
+BEGIN
+    SELECT ServiceID INTO serv_id FROM Service WHERE title = title_;
+    return serv_id; 
+END
+$func$ LANGUAGE plpgsql;
+
+-- func for insertClients()--					      
+CREATE OR REPLACE FUNCTION IdByName_pat(name_ text)
+  returns integer
+  AS
+$func$
+DECLARE
+  pat_id integer;
+BEGIN
+    SELECT PatientId INTO pat_id FROM Patient WHERE patientname = name_;
+    return pat_id; 
+END
+$func$ LANGUAGE plpgsql;
+
+--call insertClients('LolaCola', '8999991', '12/09/2020', 'Vasiliy Pupkin', 'Kidnay removal')--
+CREATE OR REPLACE PROCEDURE insertClients(IN patient_name varchar(40), IN phone_ varchar(12), IN date_ date, IN doc varchar(40), IN serv varchar(40))
+LANGUAGE plpgsql
+AS $$
+DECLARE
+    doctorID int;
+	serviceID int;
+	patientID int;
+	lognum int;
+BEGIN
+
+	doctorID =IdByName_doc(doc);
+	serviceID =IdByName_serv(serv);
+	if doctorID is null or serviceID is null then 
+		raise notice 'the doctors name or service name was entered incorrectly';
+	else 
+		if not exists (select 1 from patient where patientname=patient_name) then 
+			select max(patient.PatientID) into patientID from patient;
+			INSERT INTO patient(PatientID, PatientName, Phone) VALUES (patientID + 1, patient_name, phone_);
+
+		end if;
+   		patientID =IdByName_pat(patient_name);
+    	select max(number) into lognum from logbook;
+    	INSERT INTO logbook(number, Date, Patient, Service, Doctor) VALUES (lognum +1, date_, patientID, serviceID, doctorID);
+    end if;
+END;
+$$;
