@@ -342,3 +342,25 @@ BEGIN
     end if;
 END;
 $$;
+
+-- deletion by id from logbook --
+-- call delmeetbyid(12); --
+
+CREATE OR REPLACE PROCEDURE DelMeetByID(ID_ int)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+	DELETE FROM logbook WHERE number = ID_;
+END;
+$$;
+
+--changind date of meeting by number in logbook--
+--call ChangeDateOfMeet(11, '12/14/2020');--
+
+CREATE OR REPLACE PROCEDURE ChangeDateOfMeet(ID_ int, date_ date)
+LANGUAGE plpgsql
+AS $$
+BEGIN
+	UPDATE logbook SET date = date_ where number = ID_;
+END;
+$$;
