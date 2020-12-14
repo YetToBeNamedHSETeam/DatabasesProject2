@@ -35,16 +35,16 @@
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>20</x>
+      <x>10</x>
       <y>10</y>
-      <width>761</width>
-      <height>551</height>
+      <width>781</width>
+      <height>561</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="main_layout">
      <item>
       <layout class="QVBoxLayout" name="connection_layout">
-       <item>
+       <item alignment="Qt::AlignBottom">
         <widget class="QLabel" name="connection_status_label">
          <property name="text">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:18pt;&quot;&gt;Connection status&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -54,7 +54,7 @@
        <item>
         <layout class="QHBoxLayout" name="connect_button_layout">
          <item>
-          <spacer name="spacer_1">
+          <spacer name="button_spacer_1">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -66,15 +66,29 @@
            </property>
           </spacer>
          </item>
-         <item>
+         <item alignment="Qt::AlignTop">
           <widget class="QPushButton" name="connect_button">
            <property name="text">
             <string>Connect</string>
            </property>
           </widget>
          </item>
+         <item alignment="Qt::AlignTop">
+          <widget class="QPushButton" name="continue_button">
+           <property name="text">
+            <string>Continue</string>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignTop">
+          <widget class="QPushButton" name="delete_db_button">
+           <property name="text">
+            <string>Delete DB</string>
+           </property>
+          </widget>
+         </item>
          <item>
-          <spacer name="spacer_2">
+          <spacer name="button_spacer_2">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -91,11 +105,91 @@
       </layout>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="table_layout">
+      <widget class="QTableWidget" name="table_widget">
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <attribute name="verticalHeaderVisible">
+        <bool>false</bool>
+       </attribute>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
-        <widget class="QTableView" name="table_view"/>
+        <widget class="QPushButton" name="clear_table_button">
+         <property name="text">
+          <string>Clear</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="combo_box_spacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="edit_check_box">
+         <property name="text">
+          <string>Edit</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="combo_box_label">
+         <property name="text">
+          <string>Choose table to view:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QComboBox" name="select_table_combo_box">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>0</height>
+          </size>
+         </property>
+         <item>
+          <property name="text">
+           <string>Doctor</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Patient</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Service</string>
+          </property>
+         </item>
+         <item>
+          <property name="text">
+           <string>Logbook</string>
+          </property>
+         </item>
+        </widget>
        </item>
       </layout>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="table_layout"/>
      </item>
     </layout>
    </widget>
@@ -113,9 +207,45 @@
     <property name="title">
      <string>Database</string>
     </property>
+    <addaction name="action_disconnect"/>
+    <addaction name="action_disconnect_and_delete"/>
+   </widget>
+   <widget class="QMenu" name="menu_table">
+    <property name="title">
+     <string>Table</string>
+    </property>
+    <widget class="QMenu" name="menu_clear">
+     <property name="title">
+      <string>Clear</string>
+     </property>
+     <addaction name="action_clear_current_table"/>
+     <addaction name="action_clear_all"/>
+    </widget>
+    <addaction name="menu_clear"/>
    </widget>
    <addaction name="menu_db"/>
+   <addaction name="menu_table"/>
   </widget>
+  <action name="action_disconnect">
+   <property name="text">
+    <string>Disconnect</string>
+   </property>
+  </action>
+  <action name="action_disconnect_and_delete">
+   <property name="text">
+    <string>Disconnect and delete</string>
+   </property>
+  </action>
+  <action name="action_clear_current_table">
+   <property name="text">
+    <string>Clear current table</string>
+   </property>
+  </action>
+  <action name="action_clear_all">
+   <property name="text">
+    <string>Clear all</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections/>

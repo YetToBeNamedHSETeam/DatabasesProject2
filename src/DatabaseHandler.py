@@ -18,6 +18,7 @@ class DatabaseHandler:
         self.hostname = "127.18.0.3"
         self.username = "postgres"
         self.password = "changeme"
+        self.db_name = None
 
     def execute(self, query, error_message=None):
         nr_notices = len(self.conn.notices)
@@ -38,6 +39,7 @@ class DatabaseHandler:
         self.hostname = hostname
         self.username = username
         self.password = password
+        self.db_name = name
         self.conn = psycopg2.connect(dbname=name, user=username, password=password, host=hostname)
         self.conn.autocommit = True
         self.cursor = self.conn.cursor()
@@ -76,5 +78,17 @@ class DatabaseHandler:
 
     def get_table(self, table):
         if table.lower() == "doctor":
-            self.execute("SELECT PrintDoctors()")
+            self.execute("SELECT PrintDoctors();")
+        if table.lower() == "patient":
+            self.execute("SELECT PrintPatients();")
+        if table.lower() == "service":
+            self.execute("SELECT PrintServices();")
+        if table.lower() == "logbook":
+            self.execute("SELECT PrintLogbook();")
         return self.cursor.fetchall()
+
+    def delete_db(self):
+        name = self.db_name
+        self.close_connection()
+        self.make_connection(DatabaseHandler.default_db_name, self.hostname, self.username, self.password)
+        return self.execute("SELECT DeleteDB('" + name + "');", "ERROR CREATING DB")
