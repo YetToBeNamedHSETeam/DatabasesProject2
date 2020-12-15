@@ -155,7 +155,7 @@ $$;
 
 
 -- searching by phone field --
--- SELECT * FROM SearchPatientByPhone('5678321');
+-- SELECT SearchPatientByPhone('5678321');
 CREATE OR REPLACE FUNCTION SearchPatientByPhone(phone_num text)
 RETURNS TABLE (Pat_ID integer, Pat_Name varchar(40), Pat_Phone varchar(12), 
 			   Ins_date timestamp with time zone) 

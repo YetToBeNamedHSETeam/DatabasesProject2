@@ -48,6 +48,7 @@ class DatabaseHandler:
         if self.conn:
             self.conn.cursor().close()
             self.conn.close()
+        self.conn = None
 
     def load_procedures(self, script_path):
         sql_contents = open(script_path, "r").read()
@@ -76,19 +77,74 @@ class DatabaseHandler:
             print("ERROR CREATING SAMPLE DATABASE. PROCEDURES:", procedures_loaded, "DB_OK:", db_ok)
             return self.create_error
 
+    @staticmethod
+    def parse_data(data):
+        data = [item[0] for item in data]
+        try:
+            parsed_data = []
+            for item in data:
+                spl = item.split(',')
+                spl = [item.replace("'", "") for item in spl]
+                spl = [item.replace('"', "") for item in spl]
+                spl = [item.replace("(", "") for item in spl]
+                spl = [item.replace(")", "") for item in spl]
+                parsed_data.append(spl)
+            return parsed_data
+        except Exception as e:
+            print('ex', e)
+
     def get_table(self, table):
+        success = False
         if table.lower() == "doctor":
-            self.execute("SELECT PrintDoctors();")
+            success = self.execute("SELECT PrintDoctors();")
         if table.lower() == "patient":
-            self.execute("SELECT PrintPatients();")
+            success = self.execute("SELECT PrintPatients();")
         if table.lower() == "service":
-            self.execute("SELECT PrintServices();")
+            success = self.execute("SELECT PrintServices();")
         if table.lower() == "logbook":
-            self.execute("SELECT PrintLogbook();")
-        return self.cursor.fetchall()
+            success = self.execute("SELECT PrintLogbook();")
+        if success:
+            data = self.cursor.fetchall()
+            if not data:
+                return "empty"
+            else:
+                return self.parse_data(data)
+        else:
+            return False
 
     def delete_db(self):
         name = self.db_name
         self.close_connection()
         self.make_connection(DatabaseHandler.default_db_name, self.hostname, self.username, self.password)
         return self.execute("SELECT DeleteDB('" + name + "');", "ERROR CREATING DB")
+
+    def clear_table(self, table):
+        return self.execute("SELECT ClearTables('{"+table+"}');")
+
+    def clear_all_tables(self):
+        return self.execute("SELECT ClearTables('{Doctor, Service, Logbook, Patient}');")
+
+    def delete_by_phone(self, phone):
+        return self.execute("CALL DeletePatientByPhone('"+phone+"');")
+
+    def search_by_phone(self, phone):
+        success = self.execute("SELECT SearchPatientByPhone('"+phone+"');")
+        if success:
+            data = self.cursor.fetchall()
+            if not data:
+                return "empty"
+            else:
+                return self.parse_data(data)
+        else:
+            return False
+
+    def add_appointment(self, client, phone, doctor, service, date):
+        return self.execute("CALL insertClients('"+client+"', '"+phone+"', '"+date+"', '"+doctor+"', '"+service+"')")
+
+    def change_appointment_date(self, appointment_id, new_date):
+        return self.execute("call ChangeDateOfMeet("+appointment_id+", '"+new_date+"');")
+
+    def delete_apointment(self, appointment_id):
+        return self.execute("call delmeetbyid("+appointment_id+");")
+
+
