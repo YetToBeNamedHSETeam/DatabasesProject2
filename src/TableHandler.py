@@ -53,8 +53,7 @@ class TableHandler(QObject):
         table.setColumnCount(num_columns)
         table.setHorizontalHeaderLabels(columns)
 
-    @staticmethod
-    def set_rows(data, table):
+    def set_rows(self, data, table):
         if not data:
             print("TableHandler: ERROR FETCHING DATA")
             return
@@ -62,6 +61,17 @@ class TableHandler(QObject):
             return
         num_items = len(data)
         table.setRowCount(num_items)
+        if self.current_table == "Logbook":
+            doctors = self.db_handler.get_table("Doctor")
+            patients = self.db_handler.get_table("Patient")
+            services = self.db_handler.get_table("Service")
+            doctors_dict = {doctor[0]: doctor[1] for doctor in doctors}
+            patients_dict = {patient[0]: patient[1] for patient in patients}
+            services_dict = {service[0]: service[1] for service in services}
+            for log in data:
+                log[2] = patients_dict[log[2]]
+                log[3] = services_dict[log[3]]
+                log[4] = doctors_dict[log[4]]
         for row in range(num_items):
             for column in range(table.columnCount()):
                 table.setItem(row, column, QTableWidgetItem(str(data[row][column])))
@@ -71,29 +81,21 @@ class TableHandler(QObject):
         self.table_widget.clear()
         self.set_columns(new_table, self.table_widget)
         raw_data = self.db_handler.get_table(new_table)
-        if new_table == "Logbook":
-            doctors = self.db_handler.get_table("Doctor")
-            patients = self.db_handler.get_table("Patient")
-            services = self.db_handler.get_table("Service")
-            doctors_dict = {doctor[0]: doctor[1] for doctor in doctors}
-            patients_dict = {patient[0]: patient[1] for patient in patients}
-            services_dict = {service[0]: service[1] for service in services}
-            for log in raw_data:
-                log[2] = patients_dict[log[2]]
-                log[3] = services_dict[log[3]]
-                log[4] = services_dict[log[4]]
         self.set_rows(raw_data, self.table_widget)
 
     def clear_current_table(self):
         if self.db_handler.clear_table(self.current_table):
             self.table_widget.clear()
             self.set_columns(self.current_table, self.table_widget)
+            self.set_rows(0)
         else:
             print('TableHandler: ERROR CLEARING CURRENT TABLE')
 
     def clear_all_tables(self):
         if self.db_handler.clear_all_tables():
             self.table_widget.clear()
+            self.set_columns(self.current_table, self.table_widget)
+            self.set_rows(0)
         else:
             print("TableHandler: ERROR CLEARING ALL TABLES")
 
