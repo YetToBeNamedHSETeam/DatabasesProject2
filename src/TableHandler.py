@@ -33,7 +33,6 @@ class TableHandler(QObject):
         self.connect_signals()
 
     def connect_signals(self):
-        self.table_widget.cellChanged.connect(self.on_cell_edited)
         self.table_widget.cellDoubleClicked.connect(self.on_cell_double_clicked)
         self.edit_date.connect(self.edit_dialog.edit_date)
         self.edit_dialog.send_date.connect(self.on_new_date)
@@ -54,7 +53,8 @@ class TableHandler(QObject):
         table.setColumnCount(num_columns)
         table.setHorizontalHeaderLabels(columns)
 
-    def set_rows(self, data, table):
+    @staticmethod
+    def set_rows(data, table):
         if not data:
             print("TableHandler: ERROR FETCHING DATA")
             return
@@ -71,11 +71,18 @@ class TableHandler(QObject):
         self.table_widget.clear()
         self.set_columns(new_table, self.table_widget)
         raw_data = self.db_handler.get_table(new_table)
+        if new_table == "Logbook":
+            doctors = self.db_handler.get_table("Doctor")
+            patients = self.db_handler.get_table("Patient")
+            services = self.db_handler.get_table("Service")
+            doctors_dict = {doctor[0]: doctor[1] for doctor in doctors}
+            patients_dict = {patient[0]: patient[1] for patient in patients}
+            services_dict = {service[0]: service[1] for service in services}
+            for log in raw_data:
+                log[2] = patients_dict[log[2]]
+                log[3] = services_dict[log[3]]
+                log[4] = services_dict[log[4]]
         self.set_rows(raw_data, self.table_widget)
-
-    def on_cell_edited(self, row, column):
-        # print(row, column)
-        1
 
     def clear_current_table(self):
         if self.db_handler.clear_table(self.current_table):

@@ -100,6 +100,7 @@ class ProjectApp(QMainWindow, Ui_MainWindow):
             self.connect_button.show()
             self.connection_status_label.show()
             self.menu_bar.hide()
+            self.add_appointment_button.hide()
         else:
             misc.change_rich_label(rich_text_label=self.connection_status_label, new_text="DB deletion error. Try again.")
 
@@ -112,6 +113,7 @@ class ProjectApp(QMainWindow, Ui_MainWindow):
         self.connect_button.show()
         self.connection_status_label.show()
         self.menu_bar.hide()
+        self.add_appointment_button.hide()
 
     def closeEvent(self, event):
         self.db_handler.close_connection()
