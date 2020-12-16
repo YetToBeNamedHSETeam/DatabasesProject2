@@ -87,7 +87,7 @@ class TableHandler(QObject):
         if self.db_handler.clear_table(self.current_table):
             self.table_widget.clear()
             self.set_columns(self.current_table, self.table_widget)
-            self.set_rows(0)
+            self.table_widget.setRowCount(0)
         else:
             print('TableHandler: ERROR CLEARING CURRENT TABLE')
 
@@ -95,7 +95,7 @@ class TableHandler(QObject):
         if self.db_handler.clear_all_tables():
             self.table_widget.clear()
             self.set_columns(self.current_table, self.table_widget)
-            self.set_rows(0)
+            self.table_widget.setRowCount(0)
         else:
             print("TableHandler: ERROR CLEARING ALL TABLES")
 
