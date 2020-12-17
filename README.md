@@ -7,7 +7,7 @@
 
 ## Структура
 
-![](`r https://sun9-33.userapi.com/impg/JaszwEbWvLOXxZCSWBE2dblED_de24oXU8BU-A/Yc_ha2-4YNk.jpg?size=1345x574&quality=96&proxy=1&sign=adf92875f5a8300f5de77d2751a749ea&type=album`)
+![](https://sun9-33.userapi.com/impg/JaszwEbWvLOXxZCSWBE2dblED_de24oXU8BU-A/Yc_ha2-4YNk.jpg?size=1345x574&quality=96&proxy=1&sign=adf92875f5a8300f5de77d2751a749ea&type=album)
 
 В нашей базе данных есть 4 таблицы:
 
